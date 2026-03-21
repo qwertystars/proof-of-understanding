@@ -4,7 +4,8 @@
   "main": "src/worker.ts",
   "compatibility_date": "2025-04-01",
   "assets": {
-    "directory": "dist"
+    "directory": "dist",
+    "binding": "ASSETS"
   },
   "d1_databases": [
     {

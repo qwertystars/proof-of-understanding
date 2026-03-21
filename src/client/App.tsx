@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import TopicList from './pages/TopicList';
 import TopicDetail from './pages/TopicDetail';
 import CreateTopic from './pages/CreateTopic';
@@ -13,8 +13,24 @@ interface User {
   avatar_url?: string;
 }
 
+function NotFound() {
+  return (
+    <div className="fade-in" style={{ textAlign: 'center', padding: '80px 20px' }}>
+      <h2 style={{ fontSize: '3rem', marginBottom: '12px', color: 'var(--teal)' }}>404</h2>
+      <h3 style={{ fontSize: '1.5rem', marginBottom: '16px' }}>Page not found</h3>
+      <p style={{ color: 'var(--text-light)', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px' }}>
+        The page you're looking for doesn't exist. Maybe it was moved, or maybe you need to understand the other side first.
+      </p>
+      <Link to="/">
+        <button className="btn-primary" style={{ padding: '12px 28px' }}>← Back to Topics</button>
+      </Link>
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.getMe().then(setUser).catch(() => {});
@@ -23,7 +39,7 @@ export default function App() {
   const handleLogout = async () => {
     await api.logout();
     setUser(null);
-    window.location.reload();
+    navigate('/');
   };
 
   return (
@@ -68,6 +84,7 @@ export default function App() {
           <Route path="/" element={<TopicList />} />
           <Route path="/topic/:id" element={<TopicDetail />} />
           <Route path="/create" element={<CreateTopic />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </>

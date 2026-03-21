@@ -9,6 +9,7 @@ type Bindings = {
   DB: D1Database;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  ASSETS: Fetcher;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -19,5 +20,12 @@ app.use('/api/*', authMiddleware);
 app.route('/api/topics', topicsRoutes);
 app.route('/api/auth', authRoutes);
 app.route('/api/categories', categoriesRoutes);
+
+// SPA catch-all: serve index.html for non-API routes
+app.get('*', async (c) => {
+  const url = new URL(c.req.url);
+  url.pathname = '/index.html';
+  return c.env.ASSETS.fetch(new Request(url));
+});
 
 export default app;
