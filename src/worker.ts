@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { topicsRoutes } from './api/topics';
 import { authRoutes } from './api/auth';
 import { categoriesRoutes } from './api/categories';
+import { blogRoutes } from './api/blog';
 import { authMiddleware } from './middleware/auth';
 
 type Bindings = {
@@ -20,6 +21,7 @@ app.use('/api/*', authMiddleware);
 app.route('/api/topics', topicsRoutes);
 app.route('/api/auth', authRoutes);
 app.route('/api/categories', categoriesRoutes);
+app.route('/api/blog', blogRoutes);
 
 // SPA catch-all: serve index.html for non-API routes
 app.get('*', async (c) => {

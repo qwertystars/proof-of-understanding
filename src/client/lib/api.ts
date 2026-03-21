@@ -84,6 +84,17 @@ export const api = {
     body: JSON.stringify({ name, description }),
   }),
 
+  getBlogPosts: (params?: { page?: number; category?: string; tag?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.category) searchParams.set('category', params.category);
+    if (params?.tag) searchParams.set('tag', params.tag);
+    const qs = searchParams.toString();
+    return request<any>(`/blog${qs ? `?${qs}` : ''}`);
+  },
+
+  getBlogPost: (slug: string) => request<any>(`/blog/${slug}`),
+
   getMe: () => request<any>('/auth/me'),
 
   logout: () => request<any>('/auth/logout', { method: 'POST' }),

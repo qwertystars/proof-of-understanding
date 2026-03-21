@@ -3,6 +3,8 @@ import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import TopicList from './pages/TopicList';
 import TopicDetail from './pages/TopicDetail';
 import CreateTopic from './pages/CreateTopic';
+import BlogList from './pages/BlogList';
+import BlogPost from './pages/BlogPost';
 import { api } from './lib/api';
 
 interface User {
@@ -59,6 +61,10 @@ export default function App() {
           <Link to="/" style={{ textDecoration: 'none' }}>
             <h1>Proof of <span>Understanding</span></h1>
           </Link>
+          <nav style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Link to="/" style={{ textDecoration: 'none', color: 'var(--text-light)', fontSize: '0.9rem', fontWeight: 500 }}>Topics</Link>
+            <Link to="/blog" style={{ textDecoration: 'none', color: 'var(--text-light)', fontSize: '0.9rem', fontWeight: 500 }}>The Brief</Link>
+          </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {country && (
               <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', padding: '4px 10px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--card-bg)' }}>
@@ -98,6 +104,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<TopicList country={country} region={region} onCountryChange={(c: string, r: string) => { setCountry(c); setRegion(r); }} />} />
           <Route path="/topic/:id" element={<TopicDetail />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/create" element={<CreateTopic />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
