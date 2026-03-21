@@ -10,13 +10,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     credentials: 'include',
   });
   
-  const data = await res.json();
+  const data: any = await res.json();
   
   if (!res.ok) {
     throw new Error(data.error || `Request failed: ${res.status}`);
   }
   
-  return data;
+  return data as T;
 }
 
 export const api = {
@@ -65,4 +65,18 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   }),
+
+  getCategories: (search?: string) => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : '';
+    return request<any>(`/categories${qs}`);
+  },
+
+  createCategory: (name: string, description?: string) => request<any>('/categories', {
+    method: 'POST',
+    body: JSON.stringify({ name, description }),
+  }),
+
+  getMe: () => request<any>('/auth/me'),
+
+  logout: () => request<any>('/auth/logout', { method: 'POST' }),
 };

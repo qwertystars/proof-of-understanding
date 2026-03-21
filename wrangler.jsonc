@@ -12,5 +12,12 @@
       "database_name": "proof-of-understanding-db",
       "database_id": "e7919d0e-1a95-4bc7-84e5-ca9440d51703"
     }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 0.01,
+      "invocation_logs": true
+    }
+  }
 }

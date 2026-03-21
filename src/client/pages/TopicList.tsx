@@ -15,7 +15,13 @@ interface Topic {
   created_at: string;
 }
 
-const CATEGORIES = ['all', 'politics', 'technology', 'society', 'science', 'economics', 'philosophy', 'general'];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  pinned: number;
+  topic_count: number;
+}
 
 export default function TopicList() {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -23,6 +29,13 @@ export default function TopicList() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [category, setCategory] = useState('all');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [catSearch, setCatSearch] = useState('');
+  const [showAllCats, setShowAllCats] = useState(false);
+
+  useEffect(() => {
+    api.getCategories().then((data: any) => setCategories(data.categories)).catch(console.error);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -36,6 +49,11 @@ export default function TopicList() {
   }, [page, category]);
 
   const totalPages = Math.ceil(total / 20);
+  
+  const pinnedCats = categories.filter(c => c.pinned);
+  const filteredCats = catSearch 
+    ? categories.filter(c => c.name.toLowerCase().includes(catSearch.toLowerCase()))
+    : showAllCats ? categories : pinnedCats;
 
   return (
     <div className="fade-in">
@@ -46,17 +64,47 @@ export default function TopicList() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
-        {CATEGORIES.map(cat => (
+      {/* Category filter */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={catSearch}
+            onChange={e => setCatSearch(e.target.value)}
+            style={{
+              padding: '6px 12px', border: '1px solid var(--border)', borderRadius: '8px',
+              fontSize: '0.85rem', fontFamily: 'var(--sans)', width: '180px', background: 'var(--card-bg)',
+            }}
+          />
+          {!catSearch && (
+            <button
+              onClick={() => setShowAllCats(!showAllCats)}
+              style={{ background: 'none', color: 'var(--teal)', fontSize: '0.8rem', padding: '4px 8px', textDecoration: 'underline' }}
+            >
+              {showAllCats ? 'Show less' : 'Show all'}
+            </button>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
-            key={cat}
-            className={category === cat ? 'btn-primary' : 'btn-secondary'}
+            className={category === 'all' ? 'btn-primary' : 'btn-secondary'}
             style={{ padding: '6px 14px', fontSize: '0.8rem' }}
-            onClick={() => { setCategory(cat); setPage(1); }}
+            onClick={() => { setCategory('all'); setPage(1); }}
           >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            All
           </button>
-        ))}
+          {filteredCats.map(cat => (
+            <button
+              key={cat.slug}
+              className={category === cat.slug ? 'btn-primary' : 'btn-secondary'}
+              style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+              onClick={() => { setCategory(cat.slug); setPage(1); }}
+            >
+              {cat.name} {cat.topic_count > 0 && <span style={{ opacity: 0.6 }}>({cat.topic_count})</span>}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (

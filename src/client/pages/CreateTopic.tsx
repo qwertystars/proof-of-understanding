@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 
@@ -27,8 +27,28 @@ export default function CreateTopic() {
   const [questionsAgainst, setQuestionsAgainst] = useState<QuizQuestion[]>([emptyQuestion(), emptyQuestion(), emptyQuestion()]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<{slug: string; name: string}[]>([]);
+  const [newCatName, setNewCatName] = useState('');
+  const [showNewCat, setShowNewCat] = useState(false);
 
-  const CATEGORIES = ['general', 'politics', 'technology', 'society', 'science', 'economics', 'philosophy'];
+  useEffect(() => {
+    api.getCategories().then((data: any) => {
+      setAvailableCategories(data.categories.map((c: any) => ({ slug: c.slug, name: c.name })));
+    }).catch(console.error);
+  }, []);
+
+  const handleCreateCategory = async () => {
+    if (!newCatName.trim()) return;
+    try {
+      const result = await api.createCategory(newCatName);
+      setAvailableCategories(prev => [...prev, { slug: result.slug, name: newCatName }]);
+      setCategory(result.slug);
+      setNewCatName('');
+      setShowNewCat(false);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
 
   const updateQuestion = (
     side: 'for' | 'against',
@@ -198,9 +218,22 @@ export default function CreateTopic() {
         <textarea style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }} placeholder="Describe the topic in detail..." value={description} onChange={e => setDescription(e.target.value)} />
         
         <label style={{ fontWeight: 500, display: 'block', marginTop: '16px', marginBottom: '6px' }}>Category</label>
-        <select style={inputStyle} value={category} onChange={e => setCategory(e.target.value)}>
-          {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-        </select>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <select style={{ ...inputStyle, flex: 1 }} value={category} onChange={e => setCategory(e.target.value)}>
+            {availableCategories.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+          </select>
+          {!showNewCat ? (
+            <button type="button" className="btn-secondary" onClick={() => setShowNewCat(true)} style={{ padding: '8px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+              + New
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <input style={{ ...inputStyle, width: '140px' }} placeholder="Category name" value={newCatName} onChange={e => setNewCatName(e.target.value)} />
+              <button type="button" className="btn-primary" onClick={handleCreateCategory} style={{ padding: '8px 12px', fontSize: '0.8rem' }}>Add</button>
+              <button type="button" onClick={() => setShowNewCat(false)} style={{ background: 'none', color: 'var(--text-light)', fontSize: '0.8rem' }}>✕</button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Arguments */}

@@ -68,6 +68,12 @@ topicsRoutes.post('/', zValidator('json', createTopicSchema), async (c) => {
   const data = c.req.valid('json');
   const userId = c.get('userId');
   
+  // Check if user is registered (auth-gate topic creation)
+  const user = await c.env.DB.prepare('SELECT is_registered FROM users WHERE id = ?').bind(userId).first() as any;
+  if (!user?.is_registered) {
+    return c.json({ error: 'You must be logged in to create topics' }, 403);
+  }
+  
   // Basic keyword blocklist
   const blocklist = ['spam', 'test123'];
   const text = (data.title + ' ' + data.description).toLowerCase();
@@ -104,6 +110,11 @@ topicsRoutes.post('/', zValidator('json', createTopicSchema), async (c) => {
   ];
   
   await c.env.DB.batch(batch);
+  
+  // Update category topic count
+  await c.env.DB.prepare(
+    'UPDATE categories SET topic_count = topic_count + 1 WHERE slug = ?'
+  ).bind(data.category).run();
   
   return c.json({ id: topicId, message: 'Topic created' }, 201);
 });
