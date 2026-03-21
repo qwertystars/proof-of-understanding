@@ -23,7 +23,27 @@ interface Category {
   topic_count: number;
 }
 
-export default function TopicList() {
+interface TopicListProps {
+  country: string | null;
+  region: string | null;
+  onCountryChange: (country: string, region: string) => void;
+}
+
+const REGIONS = [
+  { value: 'all', label: 'All Regions' },
+  { value: 'south-asia', label: 'South Asia' },
+  { value: 'east-asia', label: 'East Asia' },
+  { value: 'southeast-asia', label: 'SE Asia' },
+  { value: 'europe', label: 'Europe' },
+  { value: 'north-america', label: 'N. America' },
+  { value: 'south-america', label: 'S. America' },
+  { value: 'middle-east', label: 'Middle East' },
+  { value: 'africa', label: 'Africa' },
+  { value: 'oceania', label: 'Oceania' },
+  { value: 'global', label: 'Global' },
+];
+
+export default function TopicList({ country, region: userRegion, onCountryChange }: TopicListProps) {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -32,6 +52,7 @@ export default function TopicList() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [catSearch, setCatSearch] = useState('');
   const [showAllCats, setShowAllCats] = useState(false);
+  const [regionFilter, setRegionFilter] = useState<string>('all');
 
   useEffect(() => {
     api.getCategories().then((data: any) => setCategories(data.categories)).catch(console.error);
@@ -39,14 +60,14 @@ export default function TopicList() {
 
   useEffect(() => {
     setLoading(true);
-    api.getTopics({ page, category: category === 'all' ? undefined : category })
+    api.getTopics({ page, category: category === 'all' ? undefined : category, region: regionFilter === 'all' ? undefined : regionFilter })
       .then((data: any) => {
         setTopics(data.topics);
         setTotal(data.pagination.total);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [page, category]);
+  }, [page, category, regionFilter]);
 
   const totalPages = Math.ceil(total / 20);
   
@@ -62,6 +83,24 @@ export default function TopicList() {
         <p style={{ color: 'var(--text-light)' }}>
           Prove you understand the other side. Then vote.
         </p>
+      </div>
+
+      {/* Region filter */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginRight: '4px' }}>🌍 Region:</span>
+          {REGIONS.map(r => (
+            <button
+              key={r.value}
+              className={regionFilter === r.value ? 'btn-primary' : 'btn-secondary'}
+              style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '12px' }}
+              onClick={() => { setRegionFilter(r.value); setPage(1); }}
+            >
+              {r.label}
+              {r.value === userRegion && regionFilter !== r.value && ' ✦'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Category filter */}

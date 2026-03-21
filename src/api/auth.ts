@@ -2,15 +2,16 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { setCookie, getCookie, deleteCookie } from 'hono/cookie';
+import { getRegionForCountry } from '../utils/regions';
 
 type Bindings = {
   DB: D1Database;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
 };
-type Variables = { userId: string };
+type Variables = { userId: string; country: string | null };
 
-export const authRoutes = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+export const authRoutes= new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 // POST /api/auth/register
 const registerSchema = z.object({
@@ -220,6 +221,21 @@ authRoutes.get('/me', async (c) => {
     display_name: user.display_name,
     is_registered: true,
     avatar_url: user.avatar_url,
+  });
+});
+
+// GET /api/auth/country — return detected country
+authRoutes.get('/country', async (c) => {
+  const country = c.get('country') || null;
+  const userId = c.get('userId');
+  
+  // Also get stored country from DB
+  const user = await c.env.DB.prepare('SELECT country FROM users WHERE id = ?').bind(userId).first() as any;
+  
+  return c.json({ 
+    detected: country,
+    stored: user?.country || null,
+    region: country ? getRegionForCountry(country) : null,
   });
 });
 

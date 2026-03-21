@@ -2,11 +2,12 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { nanoid } from 'nanoid';
+import { getRegionForCountry } from '../utils/regions';
 
 type Bindings = { DB: D1Database };
-type Variables = { userId: string };
+type Variables = { userId: string; country: string | null };
 
-export const topicsRoutes = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+export const topicsRoutes= new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 // GET /api/topics - list paginated, filterable
 topicsRoutes.get('/', async (c) => {
@@ -16,7 +17,7 @@ topicsRoutes.get('/', async (c) => {
   const category = c.req.query('category');
   const status = c.req.query('status') || 'active';
   
-  let query = 'SELECT id, title, description, category, votes_for, votes_against, pass_rate_for, pass_rate_against, status, created_at, closes_at FROM topics WHERE status = ?';
+  let query = 'SELECT id, title, description, category, region, votes_for, votes_against, pass_rate_for, pass_rate_against, status, created_at, closes_at FROM topics WHERE status = ?';
   const params: any[] = [status];
   
   if (category) {
@@ -24,14 +25,29 @@ topicsRoutes.get('/', async (c) => {
     params.push(category);
   }
   
+  const region = c.req.query('region');
+  
+  if (region) {
+    query += ' AND (region = ? OR region = \'global\')';
+    params.push(region);
+  }
+  
   query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
   params.push(limit, offset);
   
   const topics = await c.env.DB.prepare(query).bind(...params).all();
   
-  const countQuery = category 
-    ? await c.env.DB.prepare('SELECT COUNT(*) as total FROM topics WHERE status = ? AND category = ?').bind(status, category).first()
-    : await c.env.DB.prepare('SELECT COUNT(*) as total FROM topics WHERE status = ?').bind(status).first();
+  let countSql = 'SELECT COUNT(*) as total FROM topics WHERE status = ?';
+  const countParams: any[] = [status];
+  if (category) {
+    countSql += ' AND category = ?';
+    countParams.push(category);
+  }
+  if (region) {
+    countSql += ' AND (region = ? OR region = \'global\')';
+    countParams.push(region);
+  }
+  const countQuery = await c.env.DB.prepare(countSql).bind(...countParams).first();
   
   return c.json({
     topics: topics.results,
@@ -50,6 +66,8 @@ const createTopicSchema = z.object({
   category: z.string().min(1).max(50),
   arguments_for: z.array(z.string()).min(1),
   arguments_against: z.array(z.string()).min(1),
+  region: z.string().max(50).optional(),
+  target_countries: z.array(z.string().length(2)).optional(),
   questions_for: z.array(z.object({
     question_text: z.string().min(10),
     options: z.array(z.string()).length(4),
@@ -82,15 +100,17 @@ topicsRoutes.post('/', zValidator('json', createTopicSchema), async (c) => {
   }
   
   const result = await c.env.DB.prepare(
-    `INSERT INTO topics (title, description, category, arguments_for, arguments_against, created_by) 
-     VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO topics (title, description, category, arguments_for, arguments_against, created_by, region, target_countries) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     data.title,
     data.description,
     data.category,
     JSON.stringify(data.arguments_for),
     JSON.stringify(data.arguments_against),
-    userId
+    userId,
+    data.region || 'global',
+    data.target_countries ? JSON.stringify(data.target_countries) : null
   ).run();
   
   const topicId = result.meta.last_row_id;

@@ -30,6 +30,7 @@ export default function CreateTopic() {
   const [availableCategories, setAvailableCategories] = useState<{slug: string; name: string}[]>([]);
   const [newCatName, setNewCatName] = useState('');
   const [showNewCat, setShowNewCat] = useState(false);
+  const [topicRegion, setTopicRegion] = useState('global');
 
   useEffect(() => {
     api.getCategories().then((data: any) => {
@@ -127,6 +128,7 @@ export default function CreateTopic() {
         title,
         description,
         category,
+        region: topicRegion,
         arguments_for: validArgsFor,
         arguments_against: validArgsAgainst,
         questions_for: questionsFor,
@@ -234,6 +236,20 @@ export default function CreateTopic() {
             </div>
           )}
         </div>
+
+        <label style={{ fontWeight: 500, display: 'block', marginTop: '16px', marginBottom: '6px' }}>Region Relevance</label>
+        <select style={inputStyle} value={topicRegion} onChange={e => setTopicRegion(e.target.value)}>
+          <option value="global">Global (visible to everyone)</option>
+          <option value="south-asia">South Asia</option>
+          <option value="east-asia">East Asia</option>
+          <option value="southeast-asia">Southeast Asia</option>
+          <option value="europe">Europe</option>
+          <option value="north-america">North America</option>
+          <option value="south-america">South America</option>
+          <option value="middle-east">Middle East</option>
+          <option value="africa">Africa</option>
+          <option value="oceania">Oceania</option>
+        </select>
       </div>
 
       {/* Arguments */}

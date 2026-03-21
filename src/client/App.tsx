@@ -32,8 +32,18 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
+  const [country, setCountry] = useState<string | null>(null);
+  const [region, setRegion] = useState<string | null>(null);
+
   useEffect(() => {
     api.getMe().then(setUser).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    api.getCountry().then((data: any) => {
+      setCountry(data.detected || data.stored);
+      setRegion(data.region);
+    }).catch(() => {});
   }, []);
 
   const handleLogout = async () => {
@@ -50,6 +60,11 @@ export default function App() {
             <h1>Proof of <span>Understanding</span></h1>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {country && (
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', padding: '4px 10px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--card-bg)' }}>
+                🌍 {country}
+              </span>
+            )}
             {user?.is_registered ? (
               <>
                 <Link to="/create">
@@ -81,7 +96,7 @@ export default function App() {
       </header>
       <main className="container">
         <Routes>
-          <Route path="/" element={<TopicList />} />
+          <Route path="/" element={<TopicList country={country} region={region} onCountryChange={(c: string, r: string) => { setCountry(c); setRegion(r); }} />} />
           <Route path="/topic/:id" element={<TopicDetail />} />
           <Route path="/create" element={<CreateTopic />} />
           <Route path="*" element={<NotFound />} />

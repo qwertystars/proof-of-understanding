@@ -20,11 +20,19 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getTopics: (params?: { page?: number; category?: string; status?: string }) => {
+  getCountry: () => request<any>('/auth/country'),
+
+  setCountry: (country: string) => request<any>('/auth/country', {
+    method: 'POST',
+    body: JSON.stringify({ country }),
+  }),
+
+  getTopics: (params?: { page?: number; category?: string; status?: string; region?: string }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
     if (params?.category) searchParams.set('category', params.category);
     if (params?.status) searchParams.set('status', params.status);
+    if (params?.region) searchParams.set('region', params.region);
     const qs = searchParams.toString();
     return request<any>(`/topics${qs ? `?${qs}` : ''}`);
   },
