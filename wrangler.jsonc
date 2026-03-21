@@ -1,5 +1,6 @@
 {
   "name": "proof-of-understanding",
+  "account_id": "ee4c08f37c3a62fedc87fbd1b8b96ff4",
   "main": "src/worker.ts",
   "compatibility_date": "2025-04-01",
   "assets": {
@@ -9,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "proof-of-understanding-db",
-      "database_id": "dd8fbc4b-d961-42ed-b222-1f99166e4358"
+      "database_id": "e7919d0e-1a95-4bc7-84e5-ca9440d51703"
     }
   ]
 }
