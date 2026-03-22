@@ -82,39 +82,41 @@ export default function BlogList() {
         </div>
       ) : (
         <>
+          <div className="blog-grid">
           {posts.map((post, i) => (
             <Link to={`/blog/${post.slug}`} key={post.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <article className="card" style={{ display: 'flex', gap: '20px', alignItems: 'start' }}>
+              <article className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                     <span className="category-badge">{post.category}</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{formatDate(post.created_at)}</span>
                   </div>
-                  <h3 style={{ fontSize: i === 0 ? '1.5rem' : '1.2rem', fontFamily: 'var(--serif)', lineHeight: 1.3, marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--serif)', lineHeight: 1.3, marginBottom: '8px' }}>
                     {post.title}
                   </h3>
                   <p style={{ color: 'var(--text-light)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '12px' }}>
                     {post.excerpt}
                   </p>
-                  <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--text-light)' }}>
-                    <span>By {post.author_name}</span>
-                    <span>·</span>
-                    <span>{post.views} views</span>
-                    {post.tags.length > 0 && (
-                      <>
-                        <span>·</span>
-                        {post.tags.slice(0, 3).map(tag => (
-                          <span key={tag} style={{ background: 'var(--bg)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border)' }}>
-                            {tag}
-                          </span>
-                        ))}
-                      </>
-                    )}
-                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--text-light)', flexWrap: 'wrap' }}>
+                  <span>By {post.author_name}</span>
+                  <span>·</span>
+                  <span>{post.views} views</span>
+                  {post.tags.length > 0 && (
+                    <>
+                      <span>·</span>
+                      {post.tags.slice(0, 3).map(tag => (
+                        <span key={tag} style={{ background: 'var(--bg)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </>
+                  )}
                 </div>
               </article>
             </Link>
           ))}
+          </div>
 
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px', marginBottom: '48px' }}>

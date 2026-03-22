@@ -160,6 +160,7 @@ export default function TopicList({ country, region: userRegion, onCountryChange
         </div>
       ) : (
         <>
+          <div className="topic-grid">
           {topics.map(topic => {
             const totalVotes = topic.votes_for + topic.votes_against;
             const forPct = totalVotes > 0 ? (topic.votes_for / totalVotes) * 100 : 50;
@@ -167,35 +168,36 @@ export default function TopicList({ country, region: userRegion, onCountryChange
             
             return (
               <Link to={`/topic/${topic.id}`} key={topic.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                    <div style={{ flex: 1 }}>
-                      <span className="category-badge">{topic.category}</span>
-                      <h3 className="topic-title" style={{ marginTop: '8px' }}>{topic.title}</h3>
-                      <p className="topic-meta">{topic.description.substring(0, 120)}...</p>
-                    </div>
+                <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1 }}>
+                    <span className="category-badge">{topic.category}</span>
+                    <h3 className="topic-title" style={{ marginTop: '8px' }}>{topic.title}</h3>
+                    <p className="topic-meta">{topic.description.substring(0, 120)}...</p>
                   </div>
                   
-                  <div className="gap-container">
-                    <div className="gap-bar">
-                      <div className="gap-bar-for" style={{ width: `${forPct}%` }} />
-                      <div className="gap-bar-against" style={{ width: `${100 - forPct}%` }} />
+                  <div>
+                    <div className="gap-container">
+                      <div className="gap-bar">
+                        <div className="gap-bar-for" style={{ width: `${forPct}%` }} />
+                        <div className="gap-bar-against" style={{ width: `${100 - forPct}%` }} />
+                      </div>
+                      <div className="gap-labels">
+                        <span>For: {topic.votes_for}</span>
+                        <span>Against: {topic.votes_against}</span>
+                      </div>
                     </div>
-                    <div className="gap-labels">
-                      <span>For: {topic.votes_for}</span>
-                      <span>Against: {topic.votes_against}</span>
+                    
+                    <div className="topic-stats">
+                      <span>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</span>
+                      <span>·</span>
+                      <span>Understanding gap: {(gap * 100).toFixed(0)}%</span>
                     </div>
-                  </div>
-                  
-                  <div className="topic-stats">
-                    <span>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</span>
-                    <span>·</span>
-                    <span>Understanding gap: {(gap * 100).toFixed(0)}%</span>
                   </div>
                 </div>
               </Link>
             );
           })}
+          </div>
 
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px', marginBottom: '48px' }}>

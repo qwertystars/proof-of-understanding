@@ -84,7 +84,7 @@ export default function BlogPost() {
   if (!post) return null;
 
   return (
-    <div className="fade-in" style={{ maxWidth: '720px', margin: '0 auto' }}>
+    <div className="fade-in" style={{ maxWidth: '780px', margin: '0 auto' }}>
       <Link to="/blog" style={{ color: 'var(--teal)', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>
         ← Back to The Brief
       </Link>
