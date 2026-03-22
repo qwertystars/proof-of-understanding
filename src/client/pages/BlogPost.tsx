@@ -37,7 +37,9 @@ export default function BlogPost() {
 
   // Simple markdown-like renderer: split by \n\n for paragraphs, ## for headings, ** for bold, > for quotes
   const renderContent = (content: string) => {
-    const blocks = content.split('\n\n');
+    // Normalize \r\n to \n (D1 may return Windows-style line endings)
+    const normalized = content.replace(/\r\n/g, '\n');
+    const blocks = normalized.split('\n\n');
     return blocks.map((block, i) => {
       const trimmed = block.trim();
       if (!trimmed) return null;
