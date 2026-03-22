@@ -18,6 +18,22 @@
   --error: #c44536;
   --serif: 'Playfair Display', Georgia, serif;
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --shadow-hover: rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a2e;
+  --text: #e0e0e0;
+  --text-light: #a0a0b0;
+  --teal: #3ac5b6;
+  --teal-dark: #2eb8a8;
+  --amber: #f0d078;
+  --amber-dark: #e0c060;
+  --border: #2e2e45;
+  --card-bg: #22223a;
+  --success: #3ac5b6;
+  --error: #e05555;
+  --shadow-hover: rgba(0,0,0,0.2);
 }
 
 /* Custom scrollbar */
@@ -123,7 +139,7 @@ button {
   transition: box-shadow 0.2s ease;
 }
 .card:hover {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px var(--shadow-hover);
 }
 
 .category-badge {

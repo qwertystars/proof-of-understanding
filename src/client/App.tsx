@@ -36,6 +36,21 @@ export default function App() {
 
   const [country, setCountry] = useState<string | null>(null);
   const [region, setRegion] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
   useEffect(() => {
     api.getMe().then(setUser).catch(() => {});
@@ -66,6 +81,13 @@ export default function App() {
             <Link to="/blog" style={{ textDecoration: 'none', color: 'var(--text-light)', fontSize: '0.9rem', fontWeight: 500 }}>The Brief</Link>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={toggleTheme}
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              style={{ background: 'none', padding: '4px 8px', fontSize: '1.1rem', border: '1px solid var(--border)', borderRadius: '8px', lineHeight: 1 }}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             {country && (
               <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', padding: '4px 10px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--card-bg)' }}>
                 🌍 {country}
